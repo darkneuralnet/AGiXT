@@ -17,7 +17,7 @@ from DBConnection import (
 from Providers import Providers
 from Extensions import Extensions
 from Defaults import DEFAULT_SETTINGS
-from agixt.db.imports import import_agents
+from db.imports import import_agents
 
 
 

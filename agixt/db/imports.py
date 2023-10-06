@@ -18,7 +18,7 @@ from DBConnection import (
     User,
 )
 from Providers import get_providers, get_provider_options
-
+from db.Agent import import_agent_config
 
 def import_agents(user="USER"):
     session = get_session()

@@ -17,7 +17,7 @@ from DBConnection import (
 from Providers import Providers
 from Extensions import Extensions
 from Defaults import DEFAULT_SETTINGS
-from db.imports import import_agents
+
 
 
 
@@ -255,18 +255,6 @@ class Agent:
                 AgentModel.name == self.agent_name, AgentModel.user_id == self.user_id
             )
             .first()
-        )
-
-
-        if not agent:
-            import_agents(self.user)
-            # Re-query the agent after importing
-            agent = (
-                self.session.query(AgentModel)
-                .filter(
-                    AgentModel.name == self.agent_name, AgentModel.user_id == self.user_id
-                )
-                .first()
         )
 
         if agent:

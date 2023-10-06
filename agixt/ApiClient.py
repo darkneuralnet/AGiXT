@@ -58,8 +58,8 @@ def verify_api_key(authorization: str = Header(None)):
             else:
                 if api_key != AGIXT_API_KEY:
                     raise HTTPException(status_code=401, detail="Invalid API Key")
-                return "USER"
+                return "postgres"
         except Exception as e:
             raise HTTPException(status_code=401, detail="Invalid API Key")
     else:
-        return "USER"
+        return "postgres"

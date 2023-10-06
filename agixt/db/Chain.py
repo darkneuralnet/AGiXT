@@ -24,8 +24,7 @@ class Chain:
         chain_db = (
             self.session.query(ChainDB)
             .filter(
-                ChainDB.name == chain_name,
-                ChainDB.user_id == self.user_id,
+                ChainDB.name == chain_name
             )
             .first()
         )
@@ -87,7 +86,7 @@ class Chain:
 
     def get_chains(self):
         chains = (
-            self.session.query(ChainDB).filter(ChainDB.user_id == self.user_id).all()
+            self.session.query(ChainDB).filter(ChainDB).all()
         )
         return [chain.name for chain in chains]
 
@@ -99,7 +98,7 @@ class Chain:
     def rename_chain(self, chain_name, new_name):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain.name = new_name
@@ -108,12 +107,12 @@ class Chain:
     def add_chain_step(self, chain_name, step_number, agent_name, prompt_type, prompt):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         agent = (
             self.session.query(Agent)
-            .filter(Agent.name == agent_name, Agent.user_id == self.user_id)
+            .filter(Agent.name == agent_name)
             .first()
         )
         if "prompt_category" in prompt:
@@ -126,7 +125,7 @@ class Chain:
                 self.session.query(Prompt)
                 .filter(
                     Prompt.name == prompt["prompt_name"],
-                    Prompt.user_id == self.user_id,
+                   
                     Prompt.prompt_category.has(name=prompt_category),
                 )
                 .first()
@@ -138,7 +137,7 @@ class Chain:
             target_id = (
                 self.session.query(Chain)
                 .filter(
-                    Chain.name == prompt["chain_name"], Chain.user_id == self.user_id
+                    Chain.name == prompt["chain_name"]
                 )
                 .first()
                 .id
@@ -193,7 +192,7 @@ class Chain:
     def update_step(self, chain_name, step_number, agent_name, prompt_type, prompt):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain_step = (
@@ -206,7 +205,7 @@ class Chain:
 
         agent = (
             self.session.query(Agent)
-            .filter(Agent.name == agent_name, Agent.user_id == self.user_id)
+            .filter(Agent.name == agent_name)
             .first()
         )
         agent_id = agent.id if agent else None
@@ -234,7 +233,7 @@ class Chain:
                 .filter(
                     Prompt.name == prompt_name,
                     Prompt.prompt_category.has(name=prompt_category),
-                    Prompt.user_id == self.user_id,
+                   
                 )
                 .first()
             )
@@ -246,7 +245,7 @@ class Chain:
             del chain_args["chain_name"]
             chain_obj = (
                 self.session.query(ChainDB)
-                .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+                .filter(ChainDB.name == chain_name)
                 .first()
             )
             if chain_obj:
@@ -284,7 +283,7 @@ class Chain:
     def delete_step(self, chain_name, step_number):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
 
@@ -311,7 +310,7 @@ class Chain:
     def delete_chain(self, chain_name):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         self.session.delete(chain)
@@ -320,7 +319,7 @@ class Chain:
     def get_step(self, chain_name, step_number):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain_step = (
@@ -335,7 +334,7 @@ class Chain:
     def get_steps(self, chain_name):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain_steps = (
@@ -349,7 +348,7 @@ class Chain:
     def move_step(self, chain_name, current_step_number, new_step_number):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain_step = (
@@ -382,7 +381,7 @@ class Chain:
     def get_step_response(self, chain_name, step_number="all"):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
 
@@ -430,7 +429,7 @@ class Chain:
     def get_chain_responses(self, chain_name):
         chain = (
             self.session.query(ChainDB)
-            .filter(ChainDB.name == chain_name, ChainDB.user_id == self.user_id)
+            .filter(ChainDB.name == chain_name)
             .first()
         )
         chain_steps = (
@@ -452,7 +451,7 @@ class Chain:
         return responses
 
     def import_chain(self, chain_name: str, steps: dict):
-        chain = ChainDB(name=chain_name, user_id=self.user_id)
+        chain = ChainDB(name=chain_name)
         self.session.add(chain)
         self.session.commit()
 
@@ -461,7 +460,7 @@ class Chain:
             agent_name = step_data["agent_name"]
             agent = (
                 self.session.query(Agent)
-                .filter(Agent.name == agent_name, Agent.user_id == self.user_id)
+                .filter(Agent.name == agent_name)
                 .first()
             )
             if not agent:
@@ -477,7 +476,7 @@ class Chain:
                     self.session.query(Prompt)
                     .filter(
                         Prompt.name == prompt["prompt_name"],
-                        Prompt.user_id == self.user_id,
+                       
                         Prompt.prompt_category.has(name=prompt_category),
                     )
                     .first()
@@ -489,8 +488,7 @@ class Chain:
                 target_id = (
                     self.session.query(Chain)
                     .filter(
-                        Chain.name == prompt["chain_name"],
-                        Chain.user_id == self.user_id,
+                        Chain.name == prompt["chain_name"]
                     )
                     .first()
                     .id

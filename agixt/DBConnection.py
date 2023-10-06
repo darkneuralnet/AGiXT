@@ -288,6 +288,7 @@ if __name__ == "__main__":
         Base.metadata.create_all(engine)
         logging.info("Connected to database.")
         # Check if the user table is empty
-        from db.imports import import_all_data
-
-        import_all_data()
+        def import_data():
+            from db.imports import import_all_data
+            import_all_data()
+        import_data()

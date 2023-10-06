@@ -55,7 +55,7 @@ def delete_agent(agent_name, user="USER"):
     user_id = user_data.id
     agent = (
         session.query(AgentModel)
-        .filter(AgentModel.name == agent_name, AgentModel.user_id == user_id)
+        .filter(AgentModel.name == agent_name)
         .first()
     )
     if not agent:
@@ -100,7 +100,7 @@ def rename_agent(agent_name, new_name, user="USER"):
     user_id = user_data.id
     agent = (
         session.query(AgentModel)
-        .filter(AgentModel.name == agent_name, AgentModel.user_id == user_id)
+        .filter(AgentModel.name == agent_name)
         .first()
     )
     if not agent:
@@ -248,7 +248,7 @@ class Agent:
         agent = (
             self.session.query(AgentModel)
             .filter(
-                AgentModel.name == self.agent_name, AgentModel.user_id == self.user_id
+                AgentModel.name == self.agent_name
             )
             .first()
         )
@@ -312,7 +312,7 @@ class Agent:
         agent = (
             self.session.query(AgentModel)
             .filter(
-                AgentModel.name == self.agent_name, AgentModel.user_id == self.user_id
+                AgentModel.name == self.agent_name
             )
             .first()
         )

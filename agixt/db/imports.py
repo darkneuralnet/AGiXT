@@ -10,6 +10,7 @@ from DBConnection import (
     Message,
     Agent,
     Prompt,
+    Chain,
     PromptCategory,
     Argument,
     Extension,
@@ -30,11 +31,11 @@ def import_agents(user="USER"):
         for f in os.scandir(agent_folder)
         if f.is_dir() and not f.name.startswith("__")
     ]
-    existing_agents = session.query(Agent).filter(Agent.user_id == user_id).all()
+    existing_agents = session.query(Agent).filter().all()
     existing_agent_names = [agent.name for agent in existing_agents]
 
     for agent_name in agents:
-        agent = session.query(Agent).filter_by(name=agent_name, user_id=user_id).first()
+        agent = session.query(Agent).filter_by(name=agent_name).first()
         if agent:
             print(f"Updating agent: {agent_name}")
         else:
@@ -210,12 +211,12 @@ def import_prompts(user="USER"):
     user_data = session.query(User).filter(User.email == user).first()
     user_id = user_data.id
     default_category = (
-        session.query(PromptCategory).filter_by(name="Default", user_id=user_id).first()
+        session.query(PromptCategory).filter_by(name="Default").first()
     )
 
     if not default_category:
         default_category = PromptCategory(
-            name="Default", description="Default category", user_id=user_id
+            name="Default", description="Default category"
         )
         session.add(default_category)
         session.commit()
@@ -230,14 +231,13 @@ def import_prompts(user="USER"):
                 category_name = os.path.basename(root)
                 prompt_category = (
                     session.query(PromptCategory)
-                    .filter_by(name=category_name, user_id=user_id)
+                    .filter_by(name=category_name)
                     .first()
                 )
                 if not prompt_category:
                     prompt_category = PromptCategory(
                         name=category_name,
-                        description=f"{category_name} category",
-                        user_id=user_id,
+                        description=f"{category_name} category"
                     )
                     session.add(prompt_category)
                     session.commit()
@@ -254,7 +254,7 @@ def import_prompts(user="USER"):
             prompt = (
                 session.query(Prompt)
                 .filter_by(
-                    name=prompt_name, prompt_category=prompt_category, user_id=user_id
+                    name=prompt_name, prompt_category=prompt_category
                 )
                 .first()
             )
@@ -268,8 +268,7 @@ def import_prompts(user="USER"):
                     name=prompt_name,
                     description="",
                     content=prompt_content,
-                    prompt_category=prompt_category,
-                    user_id=user_id,
+                    prompt_category=prompt_category
                 )
                 session.add(prompt)
                 session.commit()
@@ -307,7 +306,7 @@ def import_conversations(user="USER"):
         # Get agent ID from the database based on agent name
         agent = (
             session.query(Agent)
-            .filter(Agent.name == agent_name, Agent.user_id == user_id)
+            .filter(Agent.name == agent_name)
             .first()
         )
         if not agent:
@@ -323,8 +322,7 @@ def import_conversations(user="USER"):
             session.query(Conversation)
             .filter(
                 Conversation.agent_id == agent.id,
-                Conversation.name == f"{agent_name} History",
-                Conversation.user_id == user_id,
+                Conversation.name == f"{agent_name} History"
             )
             .first()
         )
@@ -333,7 +331,7 @@ def import_conversations(user="USER"):
 
         # Create a new conversation
         conversation = Conversation(
-            agent_id=agent.id, name=f"{agent_name} History", user_id=user_id
+            agent_id=agent.id, name=f"{agent_name} History"
         )
         session.add(conversation)
         session.commit()
@@ -378,6 +376,7 @@ def import_providers():
         else:
             provider = Provider(name=provider_name)
             session.add(provider)
+            session.commit()  # Ensure provider is committed and has an id
             existing_provider_names.append(provider_name)
             print(f"Adding provider: {provider_name}")
 
@@ -405,33 +404,59 @@ def import_providers():
     session.commit()
 
 
-    def import_all_data():
-        session = get_session()
-        user_count = session.query(User).count()
-        if user_count == 0:
-            # Create the default user
-            logging.info("Creating default user...")
-            user = User(email="USER")
-            session.add(user)
-            session.commit()
-            logging.info("Default user created.")
-            logging.info("Importing data...")
+def import_all_data():
+    session = get_session()
+    user_count = session.query(User).count()
+    if user_count == 0:
+        # Create the default user
+        logging.info("Creating default user...")
+        user = User(email="USER")
+        session.add(user)
+        session.commit()
+        logging.info("Default user created.")
+        logging.info("Importing data...")
+        from db.imports import import_agents
+        import_agents()
+        import_extensions()
+        import_prompts()
+        import_chains()
+        import_conversations()
+        import_providers()
 
-        agent_count = session.query(Agent).count()
-        if agent_count == 0:
-            import_agents()
+    agent_count = session.query(Agent).count()
+    if agent_count == 0:
+        from db.imports import import_agents
+        import_agents()
 
-        extension_count = session.query(Extension).count()
-        if extension_count == 0:
-            import_extensions()
+    extension_count = session.query(Extension).count()
+    if extension_count == 0:
+        from db.imports import import_extensions
+        import_extensions()
 
-        provider_count = session.query(Provider).count()
-        if provider_count == 0:
-            import_providers()
+    prompt_count = session.query(Prompt).count()
+    if prompt_count == 0:
+        from db.imports import import_prompts
+        import_prompts()
 
-        conversation_count = session.query(Conversation).count()
-        if conversation_count == 0:
-            import_conversations()
+    chain_count = session.query(Chain).count()
+    if chain_count == 0:
+        from db.imports import import_chains
+        import_chains()
 
-        logging.info("Import complete.")
+    conversation_count = session.query(Conversation).count()
+    if conversation_count == 0:
+        from db.imports import import_conversations
+        import_conversations()
+
+    provider_count = session.query(Provider).count()
+    if provider_count == 0:
+        from db.imports import import_providers
+        import_providers()
+
+    provider_setting_count = session.query(ProviderSetting).count()
+    if provider_setting_count == 0:
+        from db.imports import import_provider_settings
+        import_provider_settings()
+
+    logging.info("Import complete.")
     

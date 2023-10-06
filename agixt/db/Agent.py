@@ -203,7 +203,16 @@ def import_agent_config(agent_name, user="USER"):
 
 class Agent:
     def __init__(self, agent_name=None, user="USER"):
+        self.user = user
         self.session = get_session()
+        user_data = self.session.query(User).filter(User.email == self.user).first()
+        if user_data is None:
+            # Create a new User if it does not exist
+            user_data = User(email=self.user)
+            self.session.add(user_data)
+            self.session.commit()  # Save the new User object to generate an ID
+            print(f"Adding user: {self.user}")
+        self.user_id = user_data.id
         self.agent_name = agent_name if agent_name is not None else "AGiXT"
         self.AGENT_CONFIG = self.get_agent_config()
         self.load_config_keys()
@@ -218,16 +227,6 @@ class Agent:
         self.available_commands = Extensions(
             agent_name=self.agent_name, agent_config=self.AGENT_CONFIG
         ).get_available_commands()
-        self.user = user
-        self.session = get_session()
-        user_data = self.session.query(User).filter(User.email == self.user).first()
-        if user_data is None:
-            # Create a new User if it does not exist
-            user_data = User(email=self.user)
-            self.session.add(user_data)
-            self.session.commit()  # Save the new User object to generate an ID
-            print(f"Adding user: {self.user}")
-        self.user_id = user_data.id
 
     def load_config_keys(self):
         config_keys = [

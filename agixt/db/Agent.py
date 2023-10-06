@@ -17,6 +17,7 @@ from DBConnection import (
 from Providers import Providers
 from Extensions import Extensions
 from Defaults import DEFAULT_SETTINGS
+from agixt.db.imports import import_agents
 
 
 
@@ -114,8 +115,15 @@ def rename_agent(agent_name, new_name, user="USER"):
 def get_agents(user="USER"):
     session = get_session()
     agents = session.query(AgentModel).filter(AgentModel.user.has(email=user)).all()
-    output = []
 
+    # If no agents exist, import them
+    if not agents:
+        import_agents(user)
+
+    # Re-query the agents after importing
+    agents = session.query(AgentModel).filter(AgentModel.user.has(email=user)).all()
+
+    output = []
     for agent in agents:
         output.append({"name": agent.name, "status": False})
 
@@ -248,6 +256,19 @@ class Agent:
             )
             .first()
         )
+
+
+        if not agent:
+            import_agents(self.user)
+            # Re-query the agent after importing
+            agent = (
+                self.session.query(AgentModel)
+                .filter(
+                    AgentModel.name == self.agent_name, AgentModel.user_id == self.user_id
+                )
+                .first()
+        )
+
         if agent:
             agent_setting = (
                 self.session.query(AgentSettingModel)

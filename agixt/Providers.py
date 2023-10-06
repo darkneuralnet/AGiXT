@@ -25,6 +25,7 @@ def get_providers():
 
 def get_provider_options(provider_name):
     provider_name = provider_name.lower()
+    options = {}  # Initialize options here
     if provider_name == "llamacppapi":
         provider_name = "llamacpp"
     if provider_name in DISABLED_PROVIDERS:

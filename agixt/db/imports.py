@@ -12,7 +12,6 @@ from DBConnection import (
     Prompt,
     PromptCategory,
     Argument,
-    Chain,
     Extension,
     Setting,
     Command,
@@ -421,10 +420,6 @@ def import_providers():
         agent_count = session.query(Agent).count()
         if agent_count == 0:
             import_agents()
-
-        chain_count = session.query(Chain).count()
-        if chain_count == 0:
-            import_chains()
 
         extension_count = session.query(Extension).count()
         if extension_count == 0:

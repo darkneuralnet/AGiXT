@@ -85,9 +85,7 @@ class Chain:
         return chain_data
 
     def get_chains(self):
-        chains = (
-            self.session.query(ChainDB).filter(ChainDB).all()
-        )
+        chains = self.session.query(ChainDB).all()
         return [chain.name for chain in chains]
 
     def add_chain(self, chain_name):

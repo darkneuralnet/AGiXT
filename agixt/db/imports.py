@@ -410,7 +410,7 @@ def import_all_data():
     if user_count == 0:
         # Create the default user
         logging.info("Creating default user...")
-        user = User(email="USER")
+        user = User(email="postgres")
         session.add(user)
         session.commit()
         logging.info("Default user created.")

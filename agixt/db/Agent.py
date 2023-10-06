@@ -17,7 +17,6 @@ from DBConnection import (
 from Providers import Providers
 from Extensions import Extensions
 from Defaults import DEFAULT_SETTINGS
-from db.imports import import_all_data
 
 
 

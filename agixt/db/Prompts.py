@@ -8,6 +8,15 @@ class Prompts:
         user_data = self.session.query(User).filter(User.email == self.user).first()
         self.user_id = user_data.id
 
+    def get_prompt_categories(self):
+        prompt_categories = (
+            self.session.query(PromptCategory.name)
+            .filter(PromptCategory.user_id == self.user_id)
+            .distinct()
+            .all()
+        )
+        return [category[0] for category in prompt_categories]
+
     def add_prompt(self, prompt_name, prompt, prompt_category="Default"):
         if not prompt_category:
             prompt_category = "Default"

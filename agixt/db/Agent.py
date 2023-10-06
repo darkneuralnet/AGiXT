@@ -116,10 +116,6 @@ def get_agents(user="USER"):
     session = get_session()
     agents = session.query(AgentModel).filter(AgentModel.user.has(email=user)).all()
 
-    # If no agents exist, import them
-    if not agents:
-        import_agents(user)
-
     # Re-query the agents after importing
     agents = session.query(AgentModel).filter(AgentModel.user.has(email=user)).all()
 

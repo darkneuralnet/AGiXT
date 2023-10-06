@@ -17,6 +17,8 @@ from DBConnection import (
 from Providers import Providers
 from Extensions import Extensions
 from Defaults import DEFAULT_SETTINGS
+from db.imports import import_all_data
+
 
 
 def add_agent(agent_name, provider_settings=None, commands=None, user="USER"):
@@ -220,6 +222,12 @@ class Agent:
         self.user = user
         self.session = get_session()
         user_data = self.session.query(User).filter(User.email == self.user).first()
+        if user_data is None:
+            # Create a new User if it does not exist
+            user_data = User(email=self.user)
+            self.session.add(user_data)
+            self.session.commit()  # Save the new User object to generate an ID
+            print(f"Adding user: {self.user}")
         self.user_id = user_data.id
 
     def load_config_keys(self):

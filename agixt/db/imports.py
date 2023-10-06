@@ -12,6 +12,7 @@ from DBConnection import (
     Prompt,
     PromptCategory,
     Argument,
+    Chain,
     Extension,
     Setting,
     Command,
@@ -405,20 +406,37 @@ def import_providers():
     session.commit()
 
 
-def import_all_data():
-    session = get_session()
-    user_count = session.query(User).count()
-    # Create the default user
-    logging.info("Creating default user...")
-    user = User(email="USER")
-    session.add(user)
-    session.commit()
-    logging.info("Default user created.")
-    logging.info("Importing data...")
-    import_agents()
-    import_extensions()
-    import_prompts()
-    import_chains()
-    import_conversations()
-    import_providers()
-    logging.info("Import complete.")
+    def import_all_data():
+        session = get_session()
+        user_count = session.query(User).count()
+        if user_count == 0:
+            # Create the default user
+            logging.info("Creating default user...")
+            user = User(email="USER")
+            session.add(user)
+            session.commit()
+            logging.info("Default user created.")
+            logging.info("Importing data...")
+
+        agent_count = session.query(Agent).count()
+        if agent_count == 0:
+            import_agents()
+
+        chain_count = session.query(Chain).count()
+        if chain_count == 0:
+            import_chains()
+
+        extension_count = session.query(Extension).count()
+        if extension_count == 0:
+            import_extensions()
+
+        provider_count = session.query(Provider).count()
+        if provider_count == 0:
+            import_providers()
+
+        conversation_count = session.query(Conversation).count()
+        if conversation_count == 0:
+            import_conversations()
+
+        logging.info("Import complete.")
+    

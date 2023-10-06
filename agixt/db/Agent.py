@@ -202,6 +202,7 @@ def import_agent_config(agent_name, user="USER"):
 
 class Agent:
     def __init__(self, agent_name=None, user="USER"):
+        self.session = get_session()
         self.agent_name = agent_name if agent_name is not None else "AGiXT"
         self.AGENT_CONFIG = self.get_agent_config()
         self.load_config_keys()
